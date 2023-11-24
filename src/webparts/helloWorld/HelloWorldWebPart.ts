@@ -7,6 +7,8 @@ import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 import type { IReadonlyTheme } from '@microsoft/sp-component-base';
 //import { escape } from '@microsoft/sp-lodash-subset';
 
+//import { Gantt, Sort } from ‘@syncfusion/ej2-gantt’;
+
 import styles from './HelloWorldWebPart.module.scss';
 import * as strings from 'HelloWorldWebPartStrings';
 
@@ -50,6 +52,8 @@ export default class HelloWorldWebPart extends BaseClientSideWebPart<IHelloWorld
      const input1 = this.domElement.querySelector("#input1") as HTMLInputElement;
 
      const input2 = this.domElement.querySelector("#input2") as HTMLInputElement;
+
+    
      
 
      const  listname = input1.value
@@ -64,35 +68,60 @@ export default class HelloWorldWebPart extends BaseClientSideWebPart<IHelloWorld
 
   private createSharepointList(listname:string,description:string):void{
 
-   
-    const endpointUrl:string = this.context.pageContext.web.absoluteUrl + "/_api/web/lists";
+  console.log(listname);
+    const url = this.context.pageContext.web.absoluteUrl+ " /_api/web/lists/GetByTitle('" + listname + "')";
 
-    const listMetadata = {
-    
-      "BaseTemplate": 100,  // 100 for custom list
-      "Title": listname,
-      "Description": description,
-      "AllowContentTypes": true,
-      "ContentTypesEnabled": true
-    };
+   console.log("the complete url is :",url);
 
-    const config:ISPHttpClientOptions = {
-      "body": JSON.stringify(listMetadata)
-    }
+    this.context.spHttpClient.get(url,SPHttpClient.configurations.v1)
+    .then((response:SPHttpClientResponse)=>{
+         
+      if(response.status === 200){
+        alert("this list is already exist:");
 
-    this.context.spHttpClient.post(endpointUrl, SPHttpClient.configurations.v1, config)
-    .then((response: SPHttpClientResponse): void => {
-      if (response.status === 201) {
-       
-        alert("a new list has been created :");
-      } else {
-
-        alert("list is not created:");
-        
+        return ;
       }
+
+      if(response.status === 404){
+
+        const endpointUrl:string = this.context.pageContext.web.absoluteUrl + "/_api/web/lists";
+
+        const listMetadata = {
+        
+          "BaseTemplate": 100,  // 100 for custom list
+          "Title": listname,
+          "Description": description,
+          "AllowContentTypes": true,
+          "ContentTypesEnabled": true
+        };
+    
+        const config:ISPHttpClientOptions = {
+          "body": JSON.stringify(listMetadata)
+        }
+    
+        this.context.spHttpClient.post(endpointUrl, SPHttpClient.configurations.v1, config)
+        .then((response1: SPHttpClientResponse): void => {
+          if (response1.status === 201) {
+           
+            alert("a new list has been created :");
+          } else {
+    
+            alert("list is not created:");
+            
+          }
+        }).catch((error)=>{
+          console.log("this is error:",error);
+        })
+
+
+      }
+
     }).catch((error)=>{
-      console.log("this is error:",error);
+      console.log("this is errror",error);
     })
+
+   
+   
    
     
   }
