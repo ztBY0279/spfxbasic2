@@ -15,6 +15,14 @@ import * as strings from 'HelloWorldWebPartStrings';
 import { SPHttpClient, SPHttpClientResponse,ISPHttpClientOptions } from '@microsoft/sp-http';
 //import { response } from 'express';
 
+// gantt chart code:- 
+
+// import JavaScriptGantt
+import { Gantt} from '@syncfusion/ej2-gantt';
+ 
+// add Syncfusion JavaScriptstyle reference from node_modules
+require('../../../node_modules/@syncfusion/ej2/fluent.css');
+
 export interface IHelloWorldWebPartProps {
   description: string;
 }
@@ -34,8 +42,58 @@ export default class HelloWorldWebPart extends BaseClientSideWebPart<IHelloWorld
     <input id = "input2" type = "text" name = "description">
     <button id = "submit">create List</button>
 
+    <p>this is working now.</p>
+
+    <tabel>
+     <tr>
+      <td>first data source</td>
+     </tr>
+     <tr>
+      <td>second data source.</td>
+     </tr>
+    
+    </tabel>
+
+    <div id="Gantt-${this.instanceId}"> </div>
+
 
     </section>`;
+    
+    let data: Object[]  = [
+      {
+         TaskID: 1,
+         TaskName: 'Project Initiation',
+         StartDate: new Date('04/02/2023'),
+         EndDate: new Date('04/21/2023'),
+         subtasks: [
+            { TaskID: 2, TaskName: 'Identify Site location', StartDate: new 
+   Date('04/02/2023'), Duration: 4, Progress: 50 },
+            { TaskID: 3, TaskName: 'Perform Soil test', StartDate: new Date('04/02/2023'), Duration: 4, Progress: 50  },
+            { TaskID: 4, TaskName: 'Soil test approval', StartDate: new Date('04/02/2023'), Duration: 4 , Progress: 50 },
+         ]
+       },
+      
+      
+   ];
+    
+   let gantt: Gantt = new Gantt({
+      dataSource: data,
+      taskFields: {
+         id: 'TaskID',
+         name: 'TaskName',
+         startDate: 'StartDate',
+         duration: 'Duration',
+         dependency: 'Predecessor',
+         progress: 'Progress',
+         child: 'subtasks',
+       },
+   });
+    
+   gantt.appendTo('#Gantt-'+this.instanceId);
+   
+  
+
+
     this.postingData();
    
   }
