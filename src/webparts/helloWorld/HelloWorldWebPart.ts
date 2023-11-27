@@ -27,6 +27,11 @@ export interface IHelloWorldWebPartProps {
   description: string;
 }
 
+
+// now importing create subsite button from the external .ts file:-
+
+//import {createSubsite} from "./helper1"
+
 export default class HelloWorldWebPart extends BaseClientSideWebPart<IHelloWorldWebPartProps> {
 
    private _isDarkTheme: boolean = false;
@@ -55,6 +60,24 @@ export default class HelloWorldWebPart extends BaseClientSideWebPart<IHelloWorld
     </tabel>
 
     <div id="Gantt-${this.instanceId}"> </div>
+
+
+    <div>
+
+    <p>changes has been made successfully.</p>
+
+    <label>Enter Site title.</label><br>
+    <input id = "title" type="text"><br>
+    <label>Enter Site description.</label><br>
+    <input id ="description" type="text"><br>
+    <label>Enter Site URL.</label><br>
+    <input id="url" type="text"><br>
+    <button id="enterbutton"> create subsite </button>
+    
+    
+    
+    
+    </div>
 
 
     </section>`;
@@ -95,8 +118,68 @@ export default class HelloWorldWebPart extends BaseClientSideWebPart<IHelloWorld
 
 
     this.postingData();
+    this.subsitebtn();
    
   }
+
+// now creatting subsite:-
+
+private subsitebtn():void{
+    
+  const btn = this.domElement.querySelector("#enterbutton") as HTMLButtonElement;
+  btn?.addEventListener("click",()=>{
+      
+    //createSubsite1();
+    this.createSubsite1();
+  })
+}
+
+
+private createSubsite1():void{
+  const title1 = this.domElement.querySelector("#title") as HTMLInputElement;
+  const title = title1.value;
+ // const description = (document.getElementById('subsiteDescription') as HTMLInputElement).value;
+ const description = (this.domElement.querySelector("#description") as HTMLInputElement).value
+  const url = (this.domElement.querySelector("#url") as HTMLInputElement).value
+// let temp = document.getElementById("title") as HTMLInputElement
+  // Use SharePoint REST API to create a subsite
+  const siteUrl: string = this.context.pageContext.web.absoluteUrl;
+  const endpoint: string = `${siteUrl}/_api/web/webinfos/add`;
+
+  const requestOptions: any = {
+    headers: {
+      'Accept': 'application/json;odata=verbose',
+      'Content-type': 'application/json;odata=verbose',
+      'odata-version': ''
+    },
+    body: JSON.stringify({
+      'parameters': {
+        '__metadata': { 'type': 'SP.WebInfoCreationInformation' },
+        'Url': url,
+        'Title': title,
+        'Description': description,
+        'Language': 1033,
+        'WebTemplate': 'STS#0',
+        'UseUniquePermissions': false
+      }
+    })
+  };
+
+  this.context.spHttpClient.post(endpoint, SPHttpClient.configurations.v1, requestOptions)
+    .then((response: SPHttpClientResponse) => {
+      if (response.ok) {
+        alert('Subsite created successfully!');
+      } else {
+        alert(`Error creating subsite: ${response.statusText}`);
+      }
+    }).catch((error)=>{
+      console.log("this is error",error)
+    });
+
+
+}
+
+
 
   private postingData():void{
     const submitid = this.domElement.querySelector("#submit") as HTMLButtonElement;
@@ -180,7 +263,7 @@ export default class HelloWorldWebPart extends BaseClientSideWebPart<IHelloWorld
 
    
    
-   
+  
     
   }
 
